@@ -1,0 +1,24 @@
+### GET
+GET http://localhost:8080/candidates
+
+### GET ID = 0
+GET http://localhost:8080/candidates/0
+
+### POST
+POST http://localhost:8080/candidates
+Content-Type: application/json
+
+{
+  "nome": "Batatiudo"
+}
+
+### PUT
+PUT http://localhost:8080/candidates
+Content-Type: application/json
+
+{
+  "nome": "Batatiudo atualizado"
+}
+
+### DELETE
+DELETE http://localhost:8080/candidates
