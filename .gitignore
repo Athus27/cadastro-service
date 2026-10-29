@@ -19,3 +19,17 @@ gradle-app.setting
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# Ignore Gradle build output directory
+build
+
+# Ignore Kotlin plugin data
+.kotlin
+
+# IntelliJ IDEA project files
+.idea/
+*.iml
+out/
+
+# Local database credentials
+**/db.properties
