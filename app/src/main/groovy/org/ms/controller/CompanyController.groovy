@@ -3,6 +3,7 @@ package org.ms.controller
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import org.ms.dao.user.CompanyDAO
 
 class CompanyController implements HttpHandler {
@@ -29,15 +30,14 @@ class CompanyController implements HttpHandler {
                 Map resposta
 
                 if (remainPath && remainPath != "/") {
-                    def matcher = (remainPath =~ /^\/([0-9]+)$/)
-                    if (!matcher.matches()) {
+                    id = extrairId(remainPath)
+                    if (id == null) {
                         responder(exchange, 404, '{"erro":"Rota não encontrada"}')
                         return
                     }
-                    id = matcher[0][1].toInteger()
                     resposta = companyDAO.buscarEmpresaPorId(id)
                     if (resposta == null) {
-                        responder(exchange, 404, '{"erro":"Empresa não encontrado"}')
+                        responder(exchange, 404, '{"erro":"Empresa não encontrada"}')
                         return
                     }
                     status = 200
@@ -52,11 +52,95 @@ class CompanyController implements HttpHandler {
                 responder(exchange, status, responseText)
                 break
 
+            case "POST":
+                if (remainPath && remainPath != "/") {
+                    responder(exchange, 404, '{"erro":"Rota não encontrada"}')
+                    return
+                }
+
+                Map empresa
+                try {
+                    empresa = new JsonSlurper().parse(exchange.requestBody) as Map
+                } catch (Exception ignored) {
+                    responder(exchange, 400, '{"erro":"JSON inválido"}')
+                    return
+                }
+
+                try {
+                    boolean cadastrada = companyDAO.adicionarEmpresa(empresa)
+                    status = cadastrada ? 201 : 400
+                    responseText = cadastrada
+                            ? '{"mensagem":"Empresa cadastrada com sucesso"}'
+                            : '{"erro":"Não foi possível cadastrar a empresa"}'
+                } catch (Exception ignored) {
+                    status = 500
+                    responseText = '{"erro":"Erro interno do servidor"}'
+                }
+                responder(exchange, status, responseText)
+                break
+
+            case "PUT":
+                id = extrairId(remainPath)
+                if (id == null) {
+                    responder(exchange, 404, '{"erro":"Rota não encontrada"}')
+                    return
+                }
+
+                Map empresa
+                try {
+                    empresa = new JsonSlurper().parse(exchange.requestBody) as Map
+                } catch (Exception ignored) {
+                    responder(exchange, 400, '{"erro":"JSON inválido"}')
+                    return
+                }
+
+                try {
+                    empresa.id = id
+                    boolean atualizada = companyDAO.atualizarEmpresa(empresa)
+                    status = atualizada ? 200 : 404
+                    responseText = atualizada
+                            ? '{"mensagem":"Empresa atualizada com sucesso"}'
+                            : '{"erro":"Empresa não encontrada"}'
+                } catch (Exception ignored) {
+                    status = 500
+                    responseText = '{"erro":"Erro interno do servidor"}'
+                }
+                responder(exchange, status, responseText)
+                break
+
+            case "DELETE":
+                id = extrairId(remainPath)
+                if (id == null) {
+                    responder(exchange, 404, '{"erro":"Rota não encontrada"}')
+                    return
+                }
+
+                if (companyDAO.removerEmpresa(id)) {
+                    responder(exchange, 204, "")
+                } else {
+                    responder(exchange, 404, '{"erro":"Empresa não encontrada"}')
+                }
+                break
+
             default:
                 status = 405
                 responseText = '{"erro":"Método não permitido"}'
-                exchange.responseHeaders.set("Allow", "GET", "POST", "PUT", "DELETE")
+                exchange.responseHeaders.set("Allow", "GET, POST, PUT, DELETE")
+                responder(exchange, status, responseText)
                 break
+        }
+    }
+
+    private static Integer extrairId(String remainPath) {
+        def matcher = (remainPath =~ /^\/([0-9]+)$/)
+        if (!matcher.matches()) {
+            return null
+        }
+
+        try {
+            return matcher[0][1].toInteger()
+        } catch (NumberFormatException ignored) {
+            return null
         }
     }
 
@@ -65,6 +149,12 @@ class CompanyController implements HttpHandler {
             int status,
             String responseText
     ) {
+        if (status == 204) {
+            exchange.sendResponseHeaders(status, -1)
+            exchange.close()
+            return
+        }
+
         byte[] responseBytes = responseText.getBytes("UTF-8")
 
         exchange.responseHeaders.set(

@@ -1,27 +1,81 @@
-### GET
+### Listar candidatos
 GET http://localhost:8080/candidates
 
-### GET ID = 0
-GET http://localhost:8080/candidates/0
+### Buscar candidato por ID
+GET http://localhost:8080/candidates/1
 
-### POST
+### Cadastrar candidato
 POST http://localhost:8080/candidates
 Content-Type: application/json
 
 {
-  "nome": "Batatiudo"
+  "nome": "Batatiudo",
+  "sobrenome": "Silva",
+  "dataNascimento": "15/01/2002",
+  "email": "batatiudo@email.com",
+  "cpf": "111.222.333-44",
+  "pais": "Brasil",
+  "cep": "01010-000",
+  "descricao": "Desenvolvedor em formação",
+  "formacao": "Engenharia da Computação",
+  "senha": "123456",
+  "competencias": ["Groovy", "Java", "SQL"]
 }
 
-### PUT
-PUT http://localhost:8080/candidates
+### Atualizar candidato por ID
+PUT http://localhost:8080/candidates/1
 Content-Type: application/json
 
 {
-  "nome": "Batatiudo atualizado"
+  "nome": "Batatiudo Atualizado",
+  "sobrenome": "Silva",
+  "dataNascimento": "15/01/2002",
+  "email": "batatiudo@email.com",
+  "cpf": "111.222.333-44",
+  "pais": "Brasil",
+  "cep": "01010-000",
+  "descricao": "Desenvolvedor backend",
+  "formacao": "Engenharia da Computação",
+  "senha": "123456",
+  "competencias": ["Groovy", "PostgreSQL"]
 }
 
-### DELETE
-DELETE http://localhost:8080/candidates
+### Remover candidato por ID
+DELETE http://localhost:8080/candidates/1
 
-### GET COMPANY
+### Listar empresas
 GET http://localhost:8080/companies
+
+### Buscar empresa por ID
+GET http://localhost:8080/companies/1
+
+### Cadastrar empresa
+POST http://localhost:8080/companies
+Content-Type: application/json
+
+{
+  "nome": "Tapetes Bolinho",
+  "email": "contato@tapetesbolinho.com",
+  "cnpj": "12.345.678/0001-00",
+  "pais": "Brasil",
+  "cep": "01010-000",
+  "descricao": "Fabricante de tapetes",
+  "senha": "123456"
+}
+
+### Atualizar empresa por ID
+PUT http://localhost:8080/companies/1
+Content-Type: application/json
+
+{
+  "nome": "Tapetes Bolinho Atualizada",
+  "email": "contato@tapetesbolinho.com",
+  "cnpj": "12.345.678/0001-00",
+  "pais": "Brasil",
+  "cep": "01010-000",
+  "descricao": "Fabricante de tapetes personalizados",
+  "senha": "123456"
+}
+
+### Remover empresa por ID
+DELETE http://localhost:8080/companies/1
