@@ -22,3 +22,6 @@ Content-Type: application/json
 
 ### DELETE
 DELETE http://localhost:8080/candidates
+
+### GET COMPANY
+GET http://localhost:8080/companies

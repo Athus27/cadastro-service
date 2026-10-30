@@ -76,6 +76,59 @@ class CompanyDAO {
         return sucesso
     }
 
+    Map buscarEmpresaPorId(int idEmpresa) {
+        Connection connection = null
+        PreparedStatement statement = null
+        ResultSet resultSet = null
+
+        def empresa = null
+        try {
+            connection = DatabaseConnectionFactory.getInstance().getFactoryDatabaseConnection().getConnection()
+            statement = connection.prepareStatement(
+                    """
+                        SELECT
+                            empresa.id_empresa AS id,
+                            user_data.nome AS nome,
+                            empresa.cnpj AS cnpj,
+                            user_data.email AS email,
+                            empresa.descricao AS descricao,
+                            user_data."país" AS pais,
+                            user_data.cep AS cep
+                        FROM "Company" AS empresa
+                        JOIN "User" AS user_data
+                            ON user_data.id = empresa.id_empresa
+                        WHERE empresa.id_empresa = ?
+                    """
+            )
+            statement.setInt(1, idEmpresa)
+            resultSet = statement.executeQuery()
+
+            if (resultSet.next()) {
+                empresa = [
+                        id       : resultSet.getInt("id"),
+                        nome     : resultSet.getString("nome"),
+                        cnpj     : resultSet.getString("cnpj"),
+                        descricao: resultSet.getString("descricao"),
+                        email    : resultSet.getString("email"),
+                        pais     : resultSet.getString("pais"),
+                        cep      : resultSet.getString("cep")
+                ]
+            }
+
+        } catch (Exception e) {
+            println("Erro ao buscar empresa por ID: ${e.message}")
+        } finally {
+            try {
+                if (resultSet != null) resultSet.close()
+                if (statement != null) statement.close()
+                if (connection != null) connection.close()
+            } catch (Exception e) {
+                println("Erro ao fechar recursos: ${e.message}")
+            }
+        }
+        return empresa
+    }
+
     Map listarEmpresas() {
         Connection connection = null
         PreparedStatement statement = null
